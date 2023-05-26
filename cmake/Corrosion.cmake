@@ -1081,8 +1081,8 @@ function(corrosion_import_crate)
             set(passthrough_to_acb "--passthrough-acb=${joined_args}")
         endif()
 
-        string(REPLACE "BIN_NAMESPACE" "--bin_namespace=" bin_namespace ${bin_namespace})
-        string(REPLACE "LIB_NAMESPACE" "--lib_namespace=" lib_namespace ${lib_namespace})
+        string(REPLACE "BIN_NAMESPACE" "--bin_namespace=" bin_namespace "" ${bin_namespace})
+        string(REPLACE "LIB_NAMESPACE" "--lib_namespace=" lib_namespace "" ${lib_namespace})
 
         execute_process(
             COMMAND
