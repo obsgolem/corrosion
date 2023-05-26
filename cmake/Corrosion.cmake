@@ -695,6 +695,7 @@ function(_add_cargo_build out_cargo_build_out_dir)
     set(package_name "${ACB_PACKAGE}")
     set(target_name "${ACB_TARGET}")
     set(target_name_cmake "${ACB_TARGET_NAME_CMAKE}")
+    string(REPLACE "::" "__" target_name_cmake_underscore ${target_name_cmake})
     set(path_to_toml "${ACB_MANIFEST_PATH}")
     set(target_kinds "${ACB_TARGET_KINDS}")
     set(workspace_manifest_path "${ACB_WORKSPACE_MANIFEST_PATH}")
@@ -845,8 +846,8 @@ function(_add_cargo_build out_cargo_build_out_dir)
     set(local_rustflags_delimiter "$<$<BOOL:${local_rustflags_target_property}>:-->")
     set(local_rustflags_genex "$<$<BOOL:${local_rustflags_target_property}>:${local_rustflags_target_property}>")
 
-    set(deps_link_languages_prop "$<TARGET_PROPERTY:_cargo-build_${target_name_cmake},CARGO_DEPS_LINKER_LANGUAGES>")
-    set(deps_link_languages "$<TARGET_GENEX_EVAL:_cargo-build_${target_name_cmake},${deps_link_languages_prop}>")
+    set(deps_link_languages_prop "$<TARGET_PROPERTY:_cargo-build_${target_name_cmake_underscore},CARGO_DEPS_LINKER_LANGUAGES>")
+    set(deps_link_languages "$<TARGET_GENEX_EVAL:_cargo-build_${target_name_cmake_underscore},${deps_link_languages_prop}>")
     set(target_uses_cxx  "$<IN_LIST:CXX,${deps_link_languages}>")
     unset(default_linker)
     # With the MSVC ABI rustc only supports directly invoking the linker - Invoking cl as the linker driver is not supported.
@@ -869,7 +870,6 @@ function(_add_cargo_build out_cargo_build_out_dir)
     endif()
 
     message(DEBUG "TARGET ${target_name_cmake} produces byproducts ${byproducts}")
-    string(REPLACE "::" "__" target_name_cmake_underscore ${target_name_cmake})
 
     add_custom_target(
         _cargo-build_${target_name_cmake_underscore}
@@ -1254,16 +1254,18 @@ function(corrosion_set_features target_name)
 endfunction()
 
 function(corrosion_link_libraries target_name)
-    if(TARGET "${target_name}-static" AND NOT TARGET "${target_name}-shared")
+    string(REPLACE "__" "::" target_name_underscore ${target_name})
+
+    if(TARGET "${target_name_underscore}-static" AND NOT TARGET "${target_name_underscore}-shared")
         message(WARNING "The target ${target_name} builds a static library."
             "The linker is never invoked for a static libraries to link has effect "
             " aside from establishing a build dependency."
             )
     endif()
-    add_dependencies(_cargo-build_${target_name} ${ARGN})
+    add_dependencies(_cargo-build_${target_name_underscore} ${ARGN})
     foreach(library ${ARGN})
         set_property(
-            TARGET _cargo-build_${target_name}
+            TARGET _cargo-build_${target_name_underscore}
             APPEND
             PROPERTY CARGO_DEPS_LINKER_LANGUAGES
             $<TARGET_PROPERTY:${library},LINKER_LANGUAGE>
