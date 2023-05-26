@@ -247,10 +247,12 @@ function(_corrosion_copy_byproduct_legacy target_name cargo_build_dir file_names
         set(output_dir "${CMAKE_CURRENT_BINARY_DIR}")
     endif()
 
+    string(REPLACE "::" "__" target_name_cmake_underscore ${target_name})
+
     list(TRANSFORM file_names PREPEND "${cargo_build_dir}/" OUTPUT_VARIABLE src_file_names)
     list(TRANSFORM file_names PREPEND "${output_dir}/" OUTPUT_VARIABLE dst_file_names)
     message(DEBUG "Adding command to copy byproducts `${file_names}` to ${dst_file_names}")
-    add_custom_command(TARGET _cargo-build_${target_name}
+    add_custom_command(TARGET _cargo-build_${target_name_cmake_underscore}
                         POST_BUILD
                         COMMAND  ${CMAKE_COMMAND} -E make_directory "${output_dir}"
                         COMMAND
