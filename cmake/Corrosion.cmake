@@ -1081,6 +1081,9 @@ function(corrosion_import_crate)
             set(passthrough_to_acb "--passthrough-acb=${joined_args}")
         endif()
 
+        string(REPLACE "BIN_NAMESPACE" "--bin_namespace=" bin_namespace ${bin_namespace})
+        string(REPLACE "LIB_NAMESPACE" "--lib_namespace=" lib_namespace ${lib_namespace})
+
         execute_process(
             COMMAND
                 ${_CORROSION_GENERATOR}
@@ -1092,6 +1095,8 @@ function(corrosion_import_crate)
                         ${cargo_profile_native_generator}
                         --imported-crates=imported_crates
                         ${passthrough_to_acb}
+                        ${bin_namespace}
+                        ${lib_namespace}
                         -o ${generated_cmake}
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             RESULT_VARIABLE ret)
